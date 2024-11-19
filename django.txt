@@ -1,0 +1,226 @@
+//create environment
+sudo  apt install python3.11-venv
+python3 -m venv ./dj-env
+source dj-env/bin/activate
+pip install django
+django-admin startproject first_project .
+./manage.py runserver
+
+
+// migrate db
+python3 ./manage.py migrate
+
+// create app
+./manage.py startapp pages
+
+//add this in the apps section in the settings.py  ->  'pages.apps.PagesConfig',
+/* to add the project urls in the project 
+ * 1. create a file called urls.py in the app directory
+ * 2. go the the urls.py in the project 
+ * 3. import include  -> from django.urls import path ,include
+ * 4. add the path to urls path('/*the path after the base page*/',include('pages.urls')),
+ */
+
+
+// Add views 
+/*
+ * 1. go to views in the app
+ * 2. import : from django.http import HttpResponse
+ * 3. create function : def index(request): 
+ *                          return HttpResponse("<h1>Hello world</h1>")
+ * 4. go to urls.py in the app the add the urls like this :
+ *   import the libraries :  from django.urls import path
+ *                           from . import views
+ *   add the url to the function : urlpatterns = [ path('', views.index, name="index"),]
+*/
+
+// DTL -> Django Templates Language
+
+// Add template
+/*
+ * 1. Create directory called templates in the app dir or in the project dir 
+ * 2. add the path of that dir in the settings -> os.path.join(BASE_DIR,'templates') -> os is in the lib os (import os)
+ * 3. create the .html files in the templates
+ * 4. instead of HttpResponse in the views use render ->     return render(request,'pages/index.html')
+ * 5. create link to the templates in urls.py of the project
+ */
+
+
+ // Add static  
+ /*
+ * 1. create a directory in the project called static
+ * 2. create directories as you want for every static file
+ * 3. go to settings then in the static section write 
+ *          STATIC_ROOT = os.path.join(BASE_DIR,'static)
+ *          STATICFILES_DIRS = [os.path.join(BASE_DIR,'first_project/static')]
+ * 4. in the teminal write ./manage.py collectstatic
+ * 5. in the base/html file write the tag 
+ *                    {%load static%}
+ *                    <link rel = "stylesheet" href = {% static 'path to .css' %}>
+ */
+
+
+// Add url
+/*
+ * 1. in the html file when you use link -> <a href = "{% url '<the name of the variable in the url context>' %}"></a>
+ *          rem -> urlpatterns = [ path('', views.index, name="index"),]
+ */
+
+
+
+//create super user
+// ./manage.py createsuperuser
+
+
+// lists in the x = [('name1','name1'),('name2','name2'),]
+
+// to return the name of the object write def __str__(self): return self.name  in the class
+
+
+// Add models
+/*
+ * 1. create app for models
+ * 2. go to the models in the app then 
+ * 3. create a class that takes models.Model then 
+ * 4. write the columns names (members) in the class
+ *      the fields are equalled with models objects  
+ *      EX:   name = models.   CharField(choices = <x> [(name1,name1) , (name2,name2)], verbose_name = 'name' , null = <bool> /*can be null (empty)*/, blank = <bool>/*not required*/ , default = <value>,max_length = <num>)
+ *                             IntegerField(choices = <x> [(name1,name1) , (name2,name2)], verbose_name = 'name' , null = <bool> /*can be null (empty)*/, blank = <bool>/*not required*/ , default = <value>,max_digits = <num>)
+ *                             DecimalField(choices = <x> [(name1,name1) , (name2,name2)], verbose_name = 'name' , null = <bool> /*can be null (empty)*/, blank = <bool>/*not required*/ , default = <value>,max_digits = <num> , decimal_places = <num>)
+ *                             TextField(choices = <x> [(name1,name1) , (name2,name2)], verbose_name = 'name' , null = <bool> /*can be null (empty)*/, blank = <bool>/*not required*/ , default = <value>,)
+ *                             ImageField(choices = <x> [(name1,name1) , (name2,name2)], verbose_name = 'name' , null = <bool> /*can be null (empty)*/, blank = <bool>/*not required*/ , default = <value>,upload_to = 'photos/%y/%m/%d')
+ *                             BooleanField(choices = <x> [(name1,name1) , (name2,name2)], verbose_name = 'name' , null = <bool> /*can be null (empty)*/, blank = <bool>/*not required*/ , default = <value>)
+ *                             DateField(default = datetime.now()) --> to use datetime.now() include  (from datetime import datetime)
+ *                             TimeField(default = datetime.now()) --> to use datetime.now() include  (from datetime import datetime)
+ *                             DateTimeField(default = datetime.now()) --> to use datetime.now() include  (from datetime import datetime)
+ *                             OneToOneField(<the related class name>, on_delete = models.   CASCADE /*delete*/)
+ *                                                                                           PROTECT /*keep it*/
+ *                             ForeignKey(<the related class name>, on_delete = ...)
+ *                             ManyToManyField(<the related class name>, on_delete = ...)                    
+ * 5. add models in the admin panal                   
+ *      1. go to admin.py in the app                            
+ *      2. include the models -> from .models import <class name>                           
+ *      3. write admin.site.register(<class name>)
+ * 6. make migration for the models
+ *      1. ./manage.py makemigrations
+ *      2. ./manage.py migrate
+ * 7. show the models content for users (if needed)
+ *      1. create template for the models
+ * 8. in the views.py in the models app include the model class -> from .models import <class name>
+ * 9. in the views.py use context to pass the models -> return render(request,'path to model template',/*context*/{'key':value})
+ *          EX: return render(request,'products/products.html',{'pro':Product.objects.     all()  })
+ *                                                                                         get(/*condition*/)
+ *                                                                                         all().filter/filter(/*condition*/  __exact, __contains , __in = [n1, n2, ..], __range = [n1, n2])
+ *                                                                                         all().order_by(/*field name*/)
+ *                                                                                         all().count() --> returns int so make cast to string -> str()
+ *                                                                                         all().exclude(/*condition*/)      
+ * 10. in the template create a for loop then loop in the models and do what ever you want to display them for users                                                                                        
+ * 11. If there is media(images) in the model 
+ *       1. go to settings in the project       
+ *       2. create a section called media
+ *       3. write MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+ *                MEDIA_URL = '/media/'
+ *       4. go to urls of the project then
+ *       5. write   from django.conf import settings         
+ *                  from django.conf.urls.static import static          
+ *       6. add +static(settings.MEDIA_URL, documents_root = settings.MEDIA_ROOT) after the urlpatterns variable
+ *       7. in the for that may be created in step 10 to show the image write EX: <img src="{{x.image.url}}" alt="">
+ *       8. the media directory will be automatically created when we add a record to the model 
+ */
+
+
+
+//create form for the users 
+/*
+ * // first way
+ * 1. create app
+ * 2. create template
+ * 3. create a form in the  block tag using html lang 
+ * 4. in the first line of the form write {% csrf_token %}
+ * 5. go to models.py in the app then 
+ * 6. create the classes of the form in the models.py
+ * 7. register the model in the admin.py in the app
+ * 7. make migrations
+ * 8. go to views.py in the app
+ * 9. in the view function take the input to the form from the request
+ *          varn = request.<method of the form (POST,GET)>.get('<var in the form>')
+ * 
+ * 10. in the view pass the data from the request to the model         
+ *          data = <model name>(var1 = val1, var2 = val2,...)
+ * 11. save the data -> if  request.method == POST
+ *                       data.save()
+ * 
+ * 
+ * 
+ * 
+ * 
+ * // second way
+ * after step 1 and 2 in the first way 
+ * 3. create form.py in the app directory 
+ * 4. from django import forms  -> in the form.py 
+ * 5. write EX : class LoginForm(forms.Form): 
+ *                      username = forms.CharField(max_length = 50, label = '', initial = 'default value', disable = <bool>/*activation*/, help_text = 'text written in under the input', widget = forms., required = bool)
+ *                      password = forms.CharField(max_length = 50, label = '', initial = 'default value', disable = <bool>/*activation*/, help_text = 'text written in under the input', widget = forms.PasswordInput, required = bool)
+ * 6. use context in the views in the app to pass the form 
+ *                  from .forms import LoginForm
+ * 7. in the view function take the input to the form from the request
+ *          varn = request.<method of the form (POST,GET)>.get('<var in the form>')
+ * 
+ * 8. in the view pass the data from the request to the model         
+ *          data = <model name>(var1 = val1, var2 = val2,...)
+ *
+ *       return render(request,'path to model template',/*context*/{'key':LoginForm})
+ * 9. in the template (form) use the {{key}} passed from the views return
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * // third way
+ * instead of step 5 in the second way 
+ * 1. from .models import Login 
+ * 2. write EX : class LoginForm(forms.ModelForm):
+ *                      class Meta: 
+ *                           model = Login
+ *                           fields = '__all__'/['field1', 'field2', ...]
+ * 3. in the views instead of 7,8                        
+ *                if  request.method == POST:        
+ *                     dataform = LoginForm(request.POST).is_valid:      
+ *                     if dataform.is_valid:
+ *                          dataform.save() 
+ */
+
+
+
+
+// add visitors manager
+/*
+ * 1. get the ip
+ *      1. pip install django-ipware
+ *      2. from ipware import get_client_ip
+ * 2. get the country
+ *      1. pip install ip2geotools
+ *      2. from ip2geotools.database.noncommercial import DbIpCity
+ * 3. code    
+ *          Ip,is_routable = get_client_ip(request)
+ *          country = ''
+ *          times = 0
+ *          if Ip is None:
+ *              Ip = '0.0.0.0'
+ *          else:
+ *              try:
+ *                  response = DbIpCity.get(Ip,api_key="free")
+ *                  country = response.country + ','+response.city
+ *              except:
+ *                  country = 'Unknown'
+ *          visitor = Visitors.objects.filter(ip = Ip).first()
+ *          if visitor:
+ *              visitor.no_visits += 1
+ *          else:            
+ *              visitor = Visitors(ip = Ip,location = country,no_visits = 1)    
+ *          visitor.save() 
+ */
+
+
+
